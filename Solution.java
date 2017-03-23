@@ -7,8 +7,9 @@ public class Solution {
         List tests = Arrays.asList();
         List results = Arrays.asList();
 
+        Solution s = new Solution();
         for(int i = 0; i < tests.size(); ++ i) {
-
+            System.out.println(i);
         }
     }
 }
