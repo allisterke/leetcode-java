@@ -5,6 +5,13 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-mkdir -p $1
-cp Solution.java $1/
-sed -i -r "1 s/^(.*)$/package $1;\n\n\1/" $1/Solution.java
+DIR=$1
+if [[ ! $DIR =~ a.* ]]; then
+    DIR=a$DIR
+fi
+
+mkdir -p $DIR
+cp Solution.java $DIR/
+sed -i -r "1 s/^(.*)$/package $DIR;\n\n\1/" $DIR/Solution.java
+
+echo $DIR/Solution.java created
