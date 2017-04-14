@@ -7,10 +7,14 @@ fi
 
 DIR=$1
 if [[ ! $DIR =~ a.* ]]; then
-    DIR=a$DIR
+    DIR=$(printf "a%03d" $DIR)
 fi
 
-mkdir -p $DIR
+mkdir $DIR
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+
 cp Solution.java $DIR/
 sed -i -r "1 s/^(.*)$/package $DIR;\n\n\1/" $DIR/Solution.java
 

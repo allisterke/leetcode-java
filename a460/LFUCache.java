@@ -12,10 +12,27 @@ public class LFUCache {
         LinkedHashSet<Integer> set;
         Frequency previous, next;
 
-        public Frequency(int f) {
+        private Frequency(int f) {
             this.f = f;
             set = new LinkedHashSet<>();
             previous = next = null;
+        }
+
+        static Deque<Frequency> pool = new LinkedList<>();
+
+        public static Frequency createObject(int f) {
+            if(pool.isEmpty()) {
+                return new Frequency(f);
+            }
+            else {
+                Frequency o = pool.poll();
+                o.f = f;
+                return o;
+            }
+        }
+
+        public static void recycleObject(Frequency f) {
+            pool.add(f);
         }
     }
 
@@ -41,7 +58,8 @@ public class LFUCache {
         int value = kv.get(key);
         Frequency f = kf.get(key);
         if(f.next.f != f.f + 1) {
-            Frequency nf = new Frequency(f.f + 1);
+//            Frequency nf = new Frequency(f.f + 1);
+            Frequency nf = Frequency.createObject(f.f + 1);
             nf.previous = f;
             nf.next = f.next;
             f.next.previous = nf;
@@ -54,6 +72,7 @@ public class LFUCache {
         if(f.set.isEmpty()) {
             f.previous.next = f.next;
             f.next.previous = f.previous;
+            Frequency.recycleObject(f);
         }
 
         return value;
@@ -68,7 +87,8 @@ public class LFUCache {
                 kv.put(key, value); // update kv
 
                 if(zero.next.f != 1) {
-                    Frequency one = new Frequency(1);
+//                    Frequency one = new Frequency(1);
+                    Frequency one = Frequency.createObject(1);
                     one.previous = zero;
                     one.next = zero.next;
                     one.next.previous = one;
@@ -85,6 +105,7 @@ public class LFUCache {
                 zero.next.set.remove(evict);
 
                 if(zero.next.f != 1 && zero.next.set.isEmpty()) { // delete if not zero
+                    Frequency.recycleObject(zero.next);
                     zero.next = zero.next.next;
                     zero.next.previous = zero;
                 }
